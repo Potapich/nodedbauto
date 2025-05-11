@@ -12,31 +12,33 @@ server.listen(config.start_port, function () {
 app.use(express.json());
 
 const mongoConfig = require('./config/config_mongo');
-const MongoClient = require('mongodb').MongoClient;
-const ObjectId = require('mongodb').ObjectId;
+const {MongoClient} = require('mongodb');
 
 let urlDB = mongoConfig.mongoURL;//'mongodb://' + mongoConfig.user + ':' + mongoConfig.password + '@' + mongoConfig.rootlink_ip + ',' + mongoConfig.secondarylink_ip;
 let dbo;
 let numbersCollection;
 
+const client = new MongoClient(urlDB, {useNewUrlParser: true});
+
 (function mongo_starter() {
-    MongoClient.connect(urlDB, {   // + '/' + dbName, {
-        useUnifiedTopology: true, useNewUrlParser: true
-    }, function (err, db) {
+    client.connect();
+
+    console.log("Connected successfully to db");
+    dbo = client.db();
+    numbersCollection = dbo.collection(mongoConfig.numbersCollection);
+
+    numbersCollection.deleteMany({}, function (err, result) {
         if (err) {
             console.log(err);
-            return err;
-        } else {
-            console.log("Connected successfully to db");
-            dbo = db.db();
-            numbersCollection = dbo.collection(mongoConfig.numbersCollection);
         }
-    })
+        console.log(result);
+    });
+
 })();
 
 async function insertNote() {
     try {
-        numbersCollection.insert(noteI, function (err, results) {
+        numbersCollection.insertOne(noteI, function (err, results) {
             if (err) {
                 console.warn(err);
             } else
@@ -49,12 +51,14 @@ async function insertNote() {
 
 async function updateNotes() {
     try {
-        numbersCollection.find({type: 'counters'}).toArray(async function (err, result) {
-            numbersCollection.update({type: 'counters'}, {
-                $set: {
-                    "visiters": Number(result[0].visiters + 1),
-                }
-            })
+        let result = await numbersCollection.find({type: "counters"}, {
+            projection: {_id: 0, type: 0}
+        }).toArray();
+        console.log(result)
+        numbersCollection.updateOne({type: 'counters'}, {
+            $set: {
+                "visiters": Number(result[0].visiters + 1),
+            }
         })
     } catch (e) {
         console.log('MONGO_ERROR', e);
@@ -77,6 +81,6 @@ let noteI = {
     "visiters": 0
 };
 
-setTimeout(insertNote, 5000)
-setTimeout(updateNotes, 10000)
-setTimeout(getNotes, 15000)
+setTimeout(insertNote, 1000)
+setTimeout(updateNotes, 2000)
+setTimeout(getNotes, 3000)
