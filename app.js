@@ -36,7 +36,7 @@ let numbersCollection;
 
 async function insertNote() {
     try {
-        collection.insertOne(noteI, function (err, results) {
+        numbersCollection.insertOne(noteI, function (err, results) {
             if (err) {
                 console.warn(err);
             } else
