@@ -1,5 +1,6 @@
-var express = require('express');
-var path = require('path');
+const express = require('express');
+const path = require('path');
+const config = require('./config');
 
 let app = express();
 
@@ -10,7 +11,7 @@ server.listen(config.start_port, function () {
 });
 app.use(express.json());
 
-const mongoConfig = require('../config/config_mongo');
+const mongoConfig = require('./config/config_mongo');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 
