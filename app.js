@@ -36,7 +36,7 @@ let numbersCollection;
 
 async function insertNote() {
     try {
-        numbersCollection.insertOne(noteI, function (err, results) {
+        numbersCollection.insert(noteI, function (err, results) {
             if (err) {
                 console.warn(err);
             } else
@@ -50,7 +50,7 @@ async function insertNote() {
 async function updateNotes() {
     try {
         numbersCollection.find({type: 'counters'}).toArray(async function (err, result) {
-            numbersCollection.updateOne({type: 'counters'}, {
+            numbersCollection.update({type: 'counters'}, {
                 $set: {
                     "visiters": Number(result[0].visiters + 1),
                 }
